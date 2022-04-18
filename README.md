@@ -10,39 +10,36 @@
 * используйте [TravisCI](https://travis-ci.com/) для сборки на операционной системе **Linux** с использованием компиляторов **gcc** и **clang**;
 * используйте [AppVeyor](https://www.appveyor.com/) для сборки на операционной системе **Windows**.
 
-**Travis**
-```sh
-$ edit .travis.yml
 
-language: cpp # Указываем язык для которого необходимо выполнить конфигурацию системы
-dist: bionic  # Указываем необходимую версию linux (Ubuntu 18.04 Bionic Beaver)
 
-os:
-- linux # Требуемая ОС
+name: CMake
 
-compiler:
-- clang # ЯП для которых будет проводиться компиляция
-- gcc
+on:
+ push:
+  branches: [main]
+ pull_request:
+  branches: [main]
 
-script: # Так как наша цель - проверить, собирается ли проект на чистом окружении, выполняем команды сборки из прошлого ДЗ
-- cmake -Hformatter_lib/ -Bformatter_lib/_build
-- cmake -Hformatter_ex_lib/ -Bformatter_ex_lib/_build
-- cmake -Hhello_world_application -Bhello_world_application/_build
-- cmake -Hsolver_lib -Bsolver_lib/_build
-- cmake -Hsolver_application -Bsolver_application/_build
-```
-**AppVeyor**
-```sh
-os: Visual Studio 2015 # Требуемая система
+jobs: 
+ build_Linux:
 
-build_script: # Инструкции для сборки
-  - cmd: cmake -Hformatter_lib/ -Bformatter_lib/_build
-  - cmd: cmake -Hformatter_ex_lib/ -Bformatter_ex_lib/_build
-  - cmd: cmake -Hhello_world_application/ -Bhello_world_application/_build
-  - cmd: cmake -Hsolver_lib/ -Bsolver_lib/_build
-  - cmd: cmake -Hsolver_application/ -Bsolver_application/_build
+  runs-on: ubuntu-latest
 
-```
+  steps:
+  - uses: actions/checkout@v3
+
+  - name: Configure Solver
+    run: cmake ${{github.workspace}}/solver_application/ -B ${{github.workspace}}/solver_application/build
+
+  - name: Build Solver
+    run: cmake --build ${{github.workspace}}/solver_application/build
+
+  - name: Configure HelloWorld
+    run: cmake ${{github.workspace}}/hello_world_application/ -B ${{github.workspace}}/hello_world_application/build
+
+  - name: Build HelloWorld
+    run: cmake --build ${{github.workspace}}/hello_world_application/build
+
 ## Links
 
 - [Travis Client](https://github.com/travis-ci/travis.rb)
